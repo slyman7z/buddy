@@ -1,7 +1,18 @@
 {% extends 'main.html'%}
 {% block content %}
-<h1>
+<h3>
+    @{{room.host.username}}
+    <hr>
+    {{room.topic.name}}
+    <hr>
     {{room.name}}
-</h1>
+    <hr>
+    {{room.description}}
+    <hr>
+    {{room.updated}}
+    <hr>
+    {{room.created}}
+
+</h3>
 
 {% endblock %}
