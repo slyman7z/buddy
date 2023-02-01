@@ -12,6 +12,18 @@
     <hr>
     <b>Created: </b>{{room.created}}
 
+    <div class="comment-wrapper">
+        <h3> Conversations</h3><hr>
+        <div>
+        {% for messages in room_messages %}
+
+            <small>{{messages.user}} {{messages.created|timesince}}--ago</small>
+            <p>{{messages.body}}</p>
+            <hr>
+        {% endfor %}
+        </div>
+    </div>
+
 
 
 {% endblock %}
