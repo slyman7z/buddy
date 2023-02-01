@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout ,authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
+from .models import Messages
 
 
 # Create your views here.
@@ -94,10 +95,20 @@ def home(request):
 def room(request, pk):
     room = Room.objects.get(id = pk)
     room_messages = room.messages_set.all().order_by('-created')
-
+    participants = room.participants.all()
+    
+    if request.method == "POST":
+        message =  Messages.objects.create(
+            user = request.user,
+            room = room,
+            body = request.POST.get('body')
+        )
+        room.participants.add(request.user)
+        return redirect ('room', pk= room.id)
     context = {
         'room':room,
         'room_messages': room_messages,
+        'participants': participants,
     
     }
     return render(request,'base/room.html', context)
@@ -148,6 +159,20 @@ def delete(request, pk):
         return redirect ('home')
 
     context = {'obj': room}
+    return render (request, 'base/delete.html', context)
+
+
+@login_required(login_url='login')     # a user has to be logged in to view this page
+def deleteMessage(request, pk):
+    messages = Messages.objects.get(id=pk)
+    if request.user != messages.user:                           # a user cant modify another users page
+        return HttpResponse('You are not authorised')
+
+    if request.method == 'POST':
+        messages.delete()
+        return redirect ('home')
+
+    context = {'obj': messages}
     return render (request, 'base/delete.html', context)
 
 

@@ -1,28 +1,65 @@
 {% extends 'main.html'%}
 {% block content %}
-    <b>Host: </b>@{{room.host.username}}
-    <hr>
-   <b> Topic: </b>{{room.topic.name}}
-    <hr>
-   <b> Room: </b>{{room.name}}
-    <hr>
-    <b>Description: </b>{{room.description}}
-    <hr>
-    <b>Last Update:  </b>{{room.updated}}
-    <hr>
-    <b>Created: </b>{{room.created}}
-
-    <div class="comment-wrapper">
-        <h3> Conversations</h3><hr>
+<style>
+    .room-container{
+        display: grid;
+        grid-template-columns: 3fr 1fr 1fr;
+    }
+</style>
+<div class="room-container">
         <div>
-        {% for messages in room_messages %}
-
-            <small>{{messages.user}} {{messages.created|timesince}}--ago</small>
-            <p>{{messages.body}}</p>
+            <b>Host: </b>@{{room.host.username}}
             <hr>
-        {% endfor %}
+            <b> Topic: </b>{{room.topic.name}}
+            <hr>
+            <b> Room: </s>{{room.name}}
+            <hr>
+            <b>Description: </b>{{room.description}}
+            <hr>
+            <b>Last Update:  </b>{{room.updated}}
+            <hr>
+            <b>Created: </b>{{room.created}}
+
+            <div class="comment-wrapper">
+                <h3> Conversations</h3><hr>
+                <div>
+                {% for messages in room_messages %}
+                {% if request.user == messages.user %}
+                    <a href="{% url 'delete-message' messages.id %}">Delete</a>
+                {% endif %}
+                    <small>{{messages.user}} {{messages.created|timesince}}--ago</small>
+                    <p>{{messages.body}}</p>
+                    <hr>
+                {% endfor %}
+                </div>
+
+
+                <div class="comment-form">
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        <input type="text" name="body" placeholder="Write your message......">
+                    </form>
+                </div>
+            </div>
         </div>
-    </div>
+
+        <div class="participants">
+            <h3>Participants</h3>
+            <hr>
+            {% for user in participants %}
+            <div>
+                <p>@{{user.username}}</p>
+            </div>
+            {%endfor %}
+
+        </div>
+
+        <div class="recent">
+            <h3>Recent Activity</h3>
+
+        </div>
+</div>
+
 
 
 
