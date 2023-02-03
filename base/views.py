@@ -1,14 +1,13 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.db.models import Q
-from .models import Room, Topic
-from .forms import RoomForm
+from .models import Room, Topic, Messages
+from .forms import RoomForm, updateForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import login, logout ,authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from .models import Messages
 
 
 # Create your views here.
@@ -75,19 +74,17 @@ def home(request):
         Q(topic__name__icontains = q) |
         Q(name__icontains = q) |
         Q(description__icontains = q)
-        
         )
     topics = Topic.objects.all()
-    room_count = rooms.count
-
+    room_count = rooms.count()
+    topics = Topic.objects.all()
+    room_messages = Messages.objects.all()
 
     context = {
         'rooms': rooms,
         'topics': topics,
-        'room_count': room_count
-    
-    
-    
+        'room_count': room_count,
+        'room_messages': room_messages,
     }
     return render(request, 'base/home.html', context)
 
@@ -120,7 +117,9 @@ def createRoom(request):
     if request.method == 'POST':
         form = RoomForm(request.POST)
         if form.is_valid():
-            form.save()
+            room = form.save(commit=False)
+            room.host = request.user
+            room.save()
             return redirect('home')
 
     context = {
@@ -174,5 +173,28 @@ def deleteMessage(request, pk):
 
     context = {'obj': messages}
     return render (request, 'base/delete.html', context)
+
+def userProfile(request, pk):
+
+    user = User.objects.get(id=pk)
+    room = user.room_set.all()
+
+
+    context = {
+        'user': user,
+        'room': room,
+        }
+    return render(request, 'base/user_profile.html', context)
+
+
+@login_required(login_url='login')
+def updateUser(request):
+    user = request.user
+    form = updateForm(instance=user)
+    context = {
+        'form': form,
+        #'user': user
+        }
+    return render(request, 'base/update-user.html', context)
 
 

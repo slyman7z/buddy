@@ -1,0 +1,18 @@
+{% extends 'main.html' %}
+{% block content %}
+
+<h3>Profile Page</h3>
+<div>
+    {% if request.user == user %}
+    
+    <div>
+        <a href="{% url 'update-user' %}"> Update user </a>
+    </div>
+
+    {% endif %}
+   
+    <h1>{{user.username}}</h1>
+
+</div>
+
+{% endblock content %}
